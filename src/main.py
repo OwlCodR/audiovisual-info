@@ -1,5 +1,5 @@
 from images_processor import ImagesProcessor
-from lab_1.transformers import *
+from lab_1.src.transformers import *
 
 
 def lab1():
@@ -16,7 +16,7 @@ def lab1():
         ResamplingTransformer2Pass(M=2, N=4),
     ]
 
-    # processor.transformByAll(transformers)
+    processor.transformByAll(transformers)
     processor.combine(transformers)
 
 
