@@ -1,8 +1,6 @@
-from abc import ABC, abstractmethod
 import numpy
 
 
-class ImageTransformerInterface(ABC):
-    @abstractmethod
+class ImageTransformerInterface:
     def transform(self, pixels: numpy.ndarray) -> numpy.ndarray:
-        pass
+        raise NotImplementedError()

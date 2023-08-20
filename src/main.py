@@ -4,14 +4,20 @@ from lab_1.transformers import *
 
 def lab1():
     processor = ImagesProcessor.fromImagesFolder(
-        inputFolderPath=f"./src/lab_1/input",
-        outputFolderPath=f"./src/lab_1/output",
+        inputFolderPath="./src/lab_1/input",
+        outputFolderPath="./src/lab_1/output",
         supportImageTypes=["png"],
     )
 
-    interpolationTransformer = InterpolationTransformer(N=2)
+    transformers = [
+        UpsamplingTransformer(M=2),
+        DownsamplingTransformer(N=4),
+        ResamplingTransformer1Pass(M=2, N=4),
+        ResamplingTransformer2Pass(M=2, N=4),
+    ]
 
-    processor.transformImages(interpolationTransformer)
+    # processor.transformByAll(transformers)
+    processor.combine(transformers)
 
 
 def main():
