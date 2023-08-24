@@ -26,7 +26,7 @@ class UpsamplingTransformer(ImageTransformerInterface):
             for j in range(height):
                 transformed[i][j] = pixels[i // M][j // M]
 
-        return transformed
+        return transformed, 'RGB'
 
 
 class DownsamplingTransformer(ImageTransformerInterface):
@@ -51,7 +51,7 @@ class DownsamplingTransformer(ImageTransformerInterface):
             for j in range(height):
                 transformed[i][j] = pixels[i * N][j * N]
 
-        return transformed
+        return transformed, 'RGB'
 
 
 class ResamplingTransformer2Pass(ImageTransformerInterface):
@@ -93,7 +93,7 @@ class ResamplingTransformer2Pass(ImageTransformerInterface):
             for j in range(height):
                 decimated[i][j] = interpolated[i * N][j * N]
 
-        return decimated
+        return decimated, 'RGB'
 
 
 class ResamplingTransformer1Pass(ImageTransformerInterface):
@@ -121,4 +121,4 @@ class ResamplingTransformer1Pass(ImageTransformerInterface):
             for j in range(height):
                 transformed[i][j] = pixels[i * N // M][j * N // M]
 
-        return transformed
+        return transformed, 'RGB'

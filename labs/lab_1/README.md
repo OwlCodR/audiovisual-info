@@ -8,3 +8,10 @@
 2. Сжатие (децимация) изображения в N раз
 3. Передискретизация изображения в K=M/N раз путём растяжения и последующего сжатия(в два прохода)
 4. Передискретизация изображения в K раз за один проход
+
+### **Examples**
+
+![](output/Combined/city.png)
+![](output/Combined/lines.png)
+![](output/Combined/pikachu.png)
+![](output/Combined/ring.png)
