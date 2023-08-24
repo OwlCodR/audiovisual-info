@@ -4,15 +4,13 @@ from lab_2.src.transformers import (
     GrayscaleTransformer,
     HistogramBinarizationTransformer,
 )
+from lab_3.src.transformers import MorphologicalOpeningTransformer
 
 
 def lab1():
     processor = ImagesProcessor.fromImagesFolder(
         inputFolderPath="./labs/lab_1/input",
         outputFolderPath="./labs/lab_1/output",
-        combinedFolderPath="./labs/lab_1/output/Combined",
-        markdownFilePath="./labs/lab_1/README.md",
-        markdownImagesFolderPath="./output/Combined",
         supportImageTypes=["png"],
     )
 
@@ -24,26 +22,26 @@ def lab1():
     ]
 
     processor.transformByAll(transformers)
-    processor.combine(transformers)
-    processor.addCombinedtoReadme()
+
+    ImagesProcessor.combine(
+        baseImagesFolderPath="./labs/lab_1/input",
+        transformedFoldersPaths=[
+            "./labs/lab_1/output",
+        ],
+        outputFolderPath="./labs/lab_1/output/combined",
+    )
+
+    ImagesProcessor.addImagesToReadme(
+        inputFolderPath="./labs/lab_1/output/combined",
+        outputPath="./labs/lab_1",
+        relativePathFromOutputToInput="./output/combined",
+    )
 
 
 def lab2():
     grayscaleProcessor = ImagesProcessor.fromImagesFolder(
         inputFolderPath="./labs/lab_2/input",
-        outputFolderPath="./labs/lab_2/output",
-        combinedFolderPath="./labs/lab_2/output/Combined",
-        markdownFilePath="./labs/lab_2/README.md",
-        markdownImagesFolderPath="./output/Combined",
-        supportImageTypes=["png"],
-    )
-
-    binarizationProcessor = ImagesProcessor.fromImagesFolder(
-        inputFolderPath="./labs/lab_2/output/GrayscaleTransformerAvg",
-        outputFolderPath="./labs/lab_2/output",
-        combinedFolderPath="./labs/lab_2/output/Combined",
-        markdownFilePath="./labs/lab_2/README.md",
-        markdownImagesFolderPath="./output/Combined",
+        outputFolderPath="./labs/lab_2/output/grayscale",
         supportImageTypes=["png"],
     )
 
@@ -52,28 +50,91 @@ def lab2():
         GrayscaleTransformer(grayFromRGB=GrayscaleTransformer.avgGrayColor),
     ]
 
+    binarizationProcessor = ImagesProcessor.fromImagesFolder(
+        inputFolderPath="./labs/lab_2/output/grayscale",
+        outputFolderPath="./labs/lab_2/output/binarization",
+        supportImageTypes=["png"],
+    )
+
     binarizationTransformers = [
-        # HistogramBinarizationTransformer(bins=5, threshold=10),
-        # HistogramBinarizationTransformer(bins=8),
-        # HistogramBinarizationTransformer(bins=10),
-        # HistogramBinarizationTransformer(bins=15),
-        # HistogramBinarizationTransformer(bins=30, threshold=100),
+        HistogramBinarizationTransformer(bins=30, threshold=100),
         HistogramBinarizationTransformer(bins=255, threshold=1500),
-        # HistogramBinarizationTransformer(bins=256, threshold=100),
+        HistogramBinarizationTransformer(bins=256, threshold=100),
     ]
 
     # grayscaleProcessor.transformByAll(grayscaleTransformers)
-    # grayscaleProcessor.combine(grayscaleTransformers)
-    # grayscaleProcessor.addCombinedtoReadme()
+    # binarizationProcessor.transformByAll(binarizationTransformers)
 
-    binarizationProcessor.transformByAll(binarizationTransformers)
-    binarizationProcessor.combine()
-    binarizationProcessor.addCombinedtoReadme()
+    ImagesProcessor.combine(
+        baseImagesFolderPath="./labs/lab_2/input",
+        transformedFoldersPaths=[
+            "./labs/lab_2/output/grayscale",
+            "./labs/lab_2/output/binarization",
+        ],
+        outputFolderPath="./labs/lab_2/output/combined",
+    )
+
+    ImagesProcessor.addImagesToReadme(
+        inputFolderPath="./labs/lab_2/output/combined",
+        outputPath="./labs/lab_2",
+        relativePathFromOutputToInput="./output/combined",
+    )
+
+
+def lab3():
+    openingProcessor = ImagesProcessor.fromImagesFolder(
+        inputFolderPath="./labs/lab_3/input",
+        outputFolderPath="./labs/lab_3/output/opening",
+        supportImageTypes=["png"],
+    )
+
+    openingTransformers = [
+        MorphologicalOpeningTransformer(
+            isWhite=False,
+            aperture=[
+                [1, 1, 1],
+                [1, 1, 1],
+                [1, 1, 1],
+            ],
+        ),
+        MorphologicalOpeningTransformer(
+            isWhite=True,
+            aperture=[
+                [1, 1, 1],
+                [1, 1, 1],
+                [1, 1, 1],
+            ],
+        ),
+    ]
+
+    # openingProcessor.transformByAll(openingTransformers)
+
+    ImagesProcessor.xorImages(
+        baseImagesFolderPath="./labs/lab_3/input",
+        toXorFolderPath="./labs/lab_3/output/opening",
+        outputFolderPath="./labs/lab_3/output/xor",
+    )
+
+    ImagesProcessor.combine(
+        baseImagesFolderPath="./labs/lab_3/input",
+        transformedFoldersPaths=[
+            "./labs/lab_3/output/opening",
+            "./labs/lab_3/output/xor",
+        ],
+        outputFolderPath="./labs/lab_3/output/combined",
+    )
+
+    ImagesProcessor.addImagesToReadme(
+        inputFolderPath="./labs/lab_3/output/combined",
+        outputPath="./labs/lab_3",
+        relativePathFromOutputToInput="./output/combined",
+    )
 
 
 def main():
     # lab1()
-    lab2()
+    # lab2()
+    lab3()
 
 
 if __name__ == "__main__":

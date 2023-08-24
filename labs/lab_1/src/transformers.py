@@ -11,11 +11,15 @@ class UpsamplingTransformer(ImageTransformerInterface):
         self.M = M
 
     @override
+    def imageNameSuffix(self) -> str:
+        return f"Interpolation_{str(self.M)}"
+
+    @override
     def transform(self, pixels: numpy.ndarray) -> numpy.ndarray:
         M = self.M
         width = pixels.shape[0] * M
         height = pixels.shape[1] * M
-        colors = pixels.shape[2]
+        colors = 3
 
         transformed = numpy.ndarray(shape=(width, height, colors))
 
@@ -24,7 +28,7 @@ class UpsamplingTransformer(ImageTransformerInterface):
 
         for i in range(width):
             for j in range(height):
-                transformed[i][j] = pixels[i // M][j // M]
+                transformed[i][j] = pixels[i // M][j // M][:colors]
 
         return transformed, 'RGB'
 
@@ -34,6 +38,10 @@ class DownsamplingTransformer(ImageTransformerInterface):
 
     def __init__(self, N: int) -> None:
         self.N = N
+
+    @override
+    def imageNameSuffix(self) -> str:
+        return f"Decimation_{str(self.N)}"
 
     @override
     def transform(self, pixels: numpy.ndarray) -> numpy.ndarray:
@@ -60,6 +68,10 @@ class ResamplingTransformer2Pass(ImageTransformerInterface):
     def __init__(self, M: int, N: int) -> None:
         self.M = M
         self.N = N
+
+    @override
+    def imageNameSuffix(self) -> str:
+        return f"ResamplingTwoPass_{str(self.M)}_{str(self.N)}"
 
     @override
     def transform(self, pixels: numpy.ndarray) -> numpy.ndarray:
@@ -102,6 +114,10 @@ class ResamplingTransformer1Pass(ImageTransformerInterface):
     def __init__(self, M: int, N: int) -> None:
         self.M = M
         self.N = N
+
+    @override
+    def imageNameSuffix(self) -> str:
+        return f"ResamplingOnePass_{str(self.M)}_{str(self.N)}"
 
     @override
     def transform(self, pixels: numpy.ndarray) -> numpy.ndarray:

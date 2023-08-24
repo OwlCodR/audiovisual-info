@@ -22,7 +22,7 @@ class GrayscaleTransformer(ImageTransformerInterface):
         return (R + G + B) / 3
 
     @override
-    def folderSuffix(self) -> str:
+    def imageNameSuffix(self) -> str:
         if self.grayFromRGB == GrayscaleTransformer.photoshopGrayColor:
             return "Photoshop"
         if self.grayFromRGB == GrayscaleTransformer.avgGrayColor:
@@ -39,19 +39,19 @@ class GrayscaleTransformer(ImageTransformerInterface):
             for j in range(height):
                 transformed[i][j] = self.grayFromRGB(pixels[i][j])
 
-        return transformed, 'L'
+        return transformed, "L"
 
 
 class HistogramBinarizationTransformer(ImageTransformerInterface):
     """Binarizes a grayscale image"""
-    
+
     def __init__(self, bins: int, threshold: int) -> None:
         self.bins = bins
         self.threshold = threshold
 
     @override
-    def folderSuffix(self) -> str:
-        return str(self.bins).zfill(3)
+    def imageNameSuffix(self) -> str:
+        return f"{str(self.bins).zfill(3)}_{str(self.threshold)}"
 
     @override
     def transform(self, pixels: numpy.ndarray) -> numpy.ndarray:
@@ -67,11 +67,11 @@ class HistogramBinarizationTransformer(ImageTransformerInterface):
             for j in range(height):
                 gray = pixels[i][j]
                 histogram[gray] += 1
-        
+
         for i in range(self.bins):
             colorsPerBin = int(256 / self.bins)
             start = i * colorsPerBin
-            bin = histogram[start:(start + colorsPerBin)]
+            bin = histogram[start : (start + colorsPerBin)]
             maximum = max(bin)
             minimum = min(bin)
             # binned[i] = int((maximum - minimum) / 2)
@@ -92,23 +92,23 @@ class HistogramBinarizationTransformer(ImageTransformerInterface):
 
             if rightOffset == 0 and right > self.threshold:
                 rightOffset = end
-            
+
             if leftOffset != 0 and rightOffset != 0:
                 break
-        
+
         sliced = binned[leftOffset:rightOffset]
         while len(sliced) > 1:
             center = len(sliced) // 2
 
             start = center
-            if len(sliced) % 2 != 0: 
+            if len(sliced) % 2 != 0:
                 start += 1
 
             left = sum(sliced[:center])
             right = sum(sliced[start:])
 
-            print(left, 'vs', right, sliced)
-            
+            print(left, "vs", right, sliced)
+
             if left > right:
                 sliced = sliced[1:]
                 leftOffset += 1
@@ -117,9 +117,9 @@ class HistogramBinarizationTransformer(ImageTransformerInterface):
                 rightOffset += 1
             else:
                 break
-        
+
         k = int((leftOffset + len(sliced) // 2) / self.bins * 256.0)
-        print('k', k)
+        print("k", k)
 
         for i in range(width):
             for j in range(height):
@@ -129,4 +129,4 @@ class HistogramBinarizationTransformer(ImageTransformerInterface):
                 else:
                     transformed[i][j] = 0
 
-        return transformed, 'L'
+        return transformed, "L"

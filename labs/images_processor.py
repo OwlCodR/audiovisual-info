@@ -1,11 +1,10 @@
 import os
 import time
 import numpy
-import shutil
 
 from pathlib import Path
 from image_transformer_interface import ImageTransformerInterface
-from PIL import Image, ImageFont, ImageDraw
+from PIL import Image, ImageFont, ImageDraw, ImageChops
 
 
 class ImagesProcessor:
@@ -15,10 +14,7 @@ class ImagesProcessor:
     def fromImagesList(
         inputFolderPath: str,
         outputFolderPath: str,
-        combinedFolderPath: str,
-        markdownFilePath: str,
-        markdownImagesFolderPath: str,
-        supportImageTypes: list[str],
+        supportImageTypes=["png", "bmp"],
     ):
         """Initialization via list of images"""
         return ImagesProcessor(
@@ -26,20 +22,13 @@ class ImagesProcessor:
                 inputFolderPath, supportImageTypes
             ),
             outputFolderPath=outputFolderPath,
-            combinedFolderPath=combinedFolderPath,
-            markdownFilePath=markdownFilePath,
-            markdownImagesFolderPath=markdownImagesFolderPath,
-            supportImageTypes=supportImageTypes,
         )
 
     @staticmethod
     def fromImagesFolder(
         inputFolderPath: str,
         outputFolderPath: str,
-        combinedFolderPath: str,
-        markdownFilePath: str,
-        markdownImagesFolderPath: str,
-        supportImageTypes: list[str],
+        supportImageTypes=["png", "bmp"],
     ):
         """Initialization via images folder"""
         return ImagesProcessor(
@@ -47,33 +36,21 @@ class ImagesProcessor:
                 inputFolderPath, supportImageTypes
             ),
             outputFolderPath=outputFolderPath,
-            combinedFolderPath=combinedFolderPath,
-            markdownFilePath=markdownFilePath,
-            markdownImagesFolderPath=markdownImagesFolderPath,
-            supportImageTypes=supportImageTypes,
         )
 
     def __init__(
         self,
         inputPaths: list[str],
         outputFolderPath: str,
-        combinedFolderPath: str,
-        markdownFilePath: str,
-        markdownImagesFolderPath: str,
-        supportImageTypes=["png", "bmp"],
     ):
         """Default constructor"""
         self.__inputPaths = inputPaths
         self.__outputFolderPath = outputFolderPath
-        self.__combinedFolderPath = combinedFolderPath
-        self.__markdownFilePath = markdownFilePath
-        self.__markdownImagesFolderPath = markdownImagesFolderPath
-        self.__supportImageTypes = supportImageTypes
 
     @staticmethod
     def _getInputPathsFromFolder(
         folderPath: str,
-        supportImageTypes: list[str],
+        supportImageTypes=["png", "bmp"],
         includeFolderPath=True,
     ) -> list[str]:
         inputPaths = []
@@ -88,9 +65,8 @@ class ImagesProcessor:
 
     @staticmethod
     def _createFolder(dir: str):
-        if os.path.exists(dir):
-            shutil.rmtree(dir)
-        Path(dir).mkdir()
+        if not os.path.exists(dir):
+            Path(dir).mkdir()
 
     def transformByAll(self, transformers: list[ImageTransformerInterface]):
         for transformer in transformers:
@@ -100,16 +76,13 @@ class ImagesProcessor:
         if len(self.__inputPaths) == 0:
             raise Exception("No files to transform")
 
-        folderName = type(transformer).__name__ + transformer.folderSuffix()
-        dir = f"{self.__outputFolderPath}/{folderName}"
+        self._createFolder(self.__outputFolderPath)
 
-        self._createFolder(dir)
-
-        for imagePath in self.__inputPaths:
-            img = Image.open(imagePath)
+        for inputImagePath in self.__inputPaths:
+            img = Image.open(inputImagePath)
             pixels = numpy.array(img)
 
-            print(f"\nTransforming image {img.mode}, '{imagePath}' by {folderName}")
+            print(f"\nTransforming image {img.mode}, '{inputImagePath}'")
             print(f"Input image shape: {pixels.shape}")
             print(f"Processing {pixels.size} pixels...")
 
@@ -119,76 +92,147 @@ class ImagesProcessor:
             print(f"Output image shape: {pixels.shape}")
             print(f"Finished in {int(time.time() - tarnsformTime)}s")
 
-            print(pixels.shape)
             img = Image.fromarray(pixels.astype(numpy.uint8), mode)
 
-            imgPath = f"{dir}/{os.path.basename(imagePath)}"
+            imgBaseName, extension = os.path.basename(inputImagePath).split(".")
+            imgName = f"{imgBaseName}_{transformer.imageNameSuffix()}.{extension}"
+            imgPath = f"{self.__outputFolderPath}/{imgName}"
             img.save(imgPath)
 
-    def combine(self):
-        if len(self.__inputPaths) == 0:
-            raise Exception("No files to transform")
+            print(pixels.shape, imgPath)
 
-        self._createFolder(dir=self.__combinedFolderPath)
+    @staticmethod
+    def __saveCombinedImage(images: list, names: list, path: str):
+        print(f"\nCombine images...")
+        for image in images:
+            print(image.filename)
 
-        for imagePath in self.__inputPaths:
-            inputImgName = os.path.basename(imagePath)
-            images = []
-            paths = []
+        totalWidth = max([image.size[0] for image in images])
+        maxHeight = sum([image.size[1] for image in images])
 
-            folders = [
-                f"{f.path}/{inputImgName}" for f in os.scandir(self.__outputFolderPath) if f.is_dir()
-            ]
+        padding = 10
+        combined = Image.new("RGB", (totalWidth, maxHeight + padding * len(images)))
 
-            for folder in folders:
-                folder = folder.replace("\\", "/")
-                if self.__combinedFolderPath not in folder:
-                    images.append(Image.open(folder))
-                    paths.append(folder)
+        offset = 0
+        for i in range(len(images)):
+            combined.paste(images[i], (0, offset))
+            draw = ImageDraw.Draw(combined)
+            font = ImageFont.truetype("fonts/sans-serif.ttf", 28)
+            draw.text((10, offset), names[i], (255, 0, 0), font=font)
+            offset += images[i].size[1] + padding
 
-            print(f"\nCombine images...")
-            for image in images:
-                print(image.filename)
+        combined.save(path)
+        print("Combined!")
 
-            totalWidth = max([image.size[0] for image in images])
-            maxHeight = sum([image.size[1] for image in images])
+    @staticmethod
+    def __saveXorImage(images: list, names: list, path: str):
+        print(images)
+        if len(images) < 2:
+            print("Warning! No image to xor!")
 
-            padding = 10
-            combined = Image.new("RGB", (totalWidth, maxHeight + padding * len(images)))
+        print(f"\nXor images...")
+        for image in images:
+            print(image.filename)
 
-            offset = 0
-            for i in range(len(images)):
-                combined.paste(images[i], (0, offset))
-                draw = ImageDraw.Draw(combined)
-                font = ImageFont.truetype("fonts/sans-serif.ttf", 24)
-                draw.text((10, offset), paths[i], (255, 0, 0), font=font)
-                offset += images[i].size[1] + padding
+        base = images[0]
 
-            combined.save(f"{self.__combinedFolderPath}/{inputImgName}")
-            print("Combined!")
+        for i in range(1, len(images)):
+            xor = ImageChops.logical_xor(
+                base.convert("1", dither=Image.NONE),
+                images[i].convert("1", dither=Image.NONE),
+            )
+            xor.save(f"{path}/{names[i]}")
 
-    def addCombinedtoReadme(self):
-        if len(self.__inputPaths) == 0:
-            raise Exception("No files to transform")
+        print("Done!")
 
-        DIVIDER = "\n\n### **Examples**\n"
+    @staticmethod
+    def combine(
+        baseImagesFolderPath: str,
+        transformedFoldersPaths: list[str],
+        outputFolderPath: str,
+    ):
+        ImagesProcessor._createFolder(dir=outputFolderPath)
+
+        baseImagesPaths = ImagesProcessor._getInputPathsFromFolder(
+            baseImagesFolderPath,
+        )
+        transformedImagesPaths = []
+
+        for transformedFolder in transformedFoldersPaths:
+            images = ImagesProcessor._getInputPathsFromFolder(transformedFolder)
+            transformedImagesPaths.extend(images)
+
+        for baseImagePath in baseImagesPaths:
+            baseName = os.path.basename(baseImagePath)
+            images = [Image.open(baseImagePath)]
+            names = [baseName]
+
+            for transformedImagePath in transformedImagesPaths:
+                transformedName = os.path.basename(transformedImagePath)
+                if baseName.split(".")[0] in transformedName:
+                    images.append(Image.open(transformedImagePath))
+                    names.append(transformedName)
+
+            ImagesProcessor.__saveCombinedImage(
+                images, names, f"{outputFolderPath}/{baseName}"
+            )
+
+    @staticmethod
+    def addImagesToReadme(
+        inputFolderPath: str,
+        outputPath: str,
+        relativePathFromOutputToInput: str,
+        supportImageTypes=["png", "bmp"],
+        outputFilename="README.md",
+        divider="\n\n### **Examples**\n",
+    ):
+        print("Adding combined images to README.md...")
 
         content = str()
+        outputFilePath = f"{outputPath}/{outputFilename}"
 
-        print("Adding combined images to README.md...")
-        with open(self.__markdownFilePath, "r") as file:
-            content = file.read().split(DIVIDER)[0]
+        with open(outputFilePath, "r") as file:
+            content = file.read().split(divider)[0]
 
-        with open(self.__markdownFilePath, "w") as file:
+        with open(outputFilePath, "w") as file:
             images = ImagesProcessor._getInputPathsFromFolder(
-                self.__combinedFolderPath, self.__supportImageTypes, False
+                inputFolderPath, supportImageTypes, False
             )
-            lines = [content, DIVIDER]
+
+            lines = [content, divider]
             lines.extend(
-                [
-                    f"\n![]({self.__markdownImagesFolderPath}/{image})"
-                    for image in images
-                ]
+                [f"\n![]({relativePathFromOutputToInput}/{image})" for image in images]
             )
             file.writelines(lines)
         print("Added!")
+
+    @staticmethod
+    def xorImages(
+        baseImagesFolderPath: str,
+        toXorFolderPath: str,
+        outputFolderPath: str,
+    ):
+        ImagesProcessor._createFolder(dir=outputFolderPath)
+
+        baseImagesPaths = ImagesProcessor._getInputPathsFromFolder(
+            baseImagesFolderPath,
+        )
+        transformedImagesPaths = []
+
+        images = ImagesProcessor._getInputPathsFromFolder(toXorFolderPath)
+        transformedImagesPaths.extend(images)
+
+        for baseImagePath in baseImagesPaths:
+            name, extension = os.path.basename(baseImagePath).split(".")
+
+            images = [Image.open(baseImagePath)]
+            names = [baseImagePath]
+
+            for transformedImagePath in transformedImagesPaths:
+                transformedName = os.path.basename(transformedImagePath)
+                if name in transformedName:
+                    prefix, suffix = os.path.basename(transformedImagePath).split(".")
+                    images.append(Image.open(transformedImagePath))
+                    names.append(f"{prefix}_xor.{suffix}")
+
+            ImagesProcessor.__saveXorImage(images, names, outputFolderPath)

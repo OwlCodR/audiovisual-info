@@ -11,7 +11,7 @@
 
 ### **Examples**
 
-![](output/Combined/city.png)
-![](output/Combined/lines.png)
-![](output/Combined/pikachu.png)
-![](output/Combined/ring.png)
+![](./output/combined/city.png)
+![](./output/combined/lines.png)
+![](./output/combined/pikachu.png)
+![](./output/combined/ring.png)

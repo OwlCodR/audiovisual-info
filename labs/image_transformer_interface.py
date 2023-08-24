@@ -2,8 +2,8 @@ import numpy
 
 
 class ImageTransformerInterface:
-    def folderSuffix(self) -> str:
-        return ''
-    
+    def imageNameSuffix(self) -> str:
+        return "transformed"
+
     def transform(self, pixels: numpy.ndarray):
         raise NotImplementedError()
