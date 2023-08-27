@@ -42,6 +42,33 @@ class GrayscaleTransformer(ImageTransformerInterface):
         return transformed, "L"
 
 
+class GlobalBinzrizationTransformer(ImageTransformerInterface):
+    """Binarizes a grayscale image via global threshold"""
+
+    def __init__(self, threshold) -> None:
+        self.threshold = threshold
+
+    @override
+    def imageNameSuffix(self) -> str:
+        return f"Global_{str(self.threshold).zfill(3)}"
+
+    @override
+    def transform(self, pixels: numpy.ndarray) -> numpy.ndarray:
+        width = pixels.shape[0]
+        height = pixels.shape[1]
+
+        transformed = numpy.ndarray(shape=(width, height))
+
+        for i in range(width):
+            for j in range(height):
+                if pixels[i][j] > self.threshold:
+                    transformed[i][j] = 255
+                else:
+                    transformed[i][j] = 0
+
+        return transformed, "L"
+
+
 class HistogramBinarizationTransformer(ImageTransformerInterface):
     """Binarizes a grayscale image"""
 
@@ -51,7 +78,7 @@ class HistogramBinarizationTransformer(ImageTransformerInterface):
 
     @override
     def imageNameSuffix(self) -> str:
-        return f"{str(self.bins).zfill(3)}_{str(self.threshold)}"
+        return f"Histogram_{str(self.bins).zfill(3)}_{str(self.threshold)}"
 
     @override
     def transform(self, pixels: numpy.ndarray) -> numpy.ndarray:

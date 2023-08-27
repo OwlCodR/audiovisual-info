@@ -14,12 +14,15 @@ class ImagesProcessor:
     def fromImagesList(
         inputFolderPath: str,
         outputFolderPath: str,
+        filter="",
         supportImageTypes=["png", "bmp"],
     ):
         """Initialization via list of images"""
         return ImagesProcessor(
-            inputPaths=ImagesProcessor._getInputPathsFromFolder(
-                inputFolderPath, supportImageTypes
+            inputPaths=ImagesProcessor.getInputPathsFromFolder(
+                folderPath=inputFolderPath,
+                supportImageTypes=supportImageTypes,
+                filter=filter,
             ),
             outputFolderPath=outputFolderPath,
         )
@@ -29,11 +32,14 @@ class ImagesProcessor:
         inputFolderPath: str,
         outputFolderPath: str,
         supportImageTypes=["png", "bmp"],
+        filter="",
     ):
         """Initialization via images folder"""
         return ImagesProcessor(
-            inputPaths=ImagesProcessor._getInputPathsFromFolder(
-                inputFolderPath, supportImageTypes
+            inputPaths=ImagesProcessor.getInputPathsFromFolder(
+                folderPath=inputFolderPath,
+                supportImageTypes=supportImageTypes,
+                filter=filter,
             ),
             outputFolderPath=outputFolderPath,
         )
@@ -48,19 +54,21 @@ class ImagesProcessor:
         self.__outputFolderPath = outputFolderPath
 
     @staticmethod
-    def _getInputPathsFromFolder(
+    def getInputPathsFromFolder(
         folderPath: str,
         supportImageTypes=["png", "bmp"],
         includeFolderPath=True,
+        filter="",
     ) -> list[str]:
         inputPaths = []
         for supportedType in supportImageTypes:
             for file in os.listdir(folderPath):
                 if file.endswith(f".{supportedType}"):
-                    if includeFolderPath:
-                        inputPaths.append(f"{folderPath}/{file}")
-                    else:
-                        inputPaths.append(file)
+                    if filter in file:
+                        if includeFolderPath:
+                            inputPaths.append(f"{folderPath}/{file}")
+                        else:
+                            inputPaths.append(file)
         return inputPaths
 
     @staticmethod
@@ -102,7 +110,13 @@ class ImagesProcessor:
             print(pixels.shape, imgPath)
 
     @staticmethod
-    def __saveCombinedImage(images: list, names: list, path: str):
+    def __saveCombinedImage(
+        images: list,
+        names: list,
+        path: str,
+        color=(0, 0, 0),
+        printFilename=True,
+    ):
         print(f"\nCombine images...")
         for image in images:
             print(image.filename)
@@ -111,14 +125,19 @@ class ImagesProcessor:
         maxHeight = sum([image.size[1] for image in images])
 
         padding = 10
-        combined = Image.new("RGB", (totalWidth, maxHeight + padding * len(images)))
+        combined = Image.new(
+            "RGB",
+            (totalWidth, maxHeight + padding * len(images)),
+            color=color,
+        )
 
         offset = 0
         for i in range(len(images)):
             combined.paste(images[i], (0, offset))
-            draw = ImageDraw.Draw(combined)
-            font = ImageFont.truetype("fonts/sans-serif.ttf", 28)
-            draw.text((10, offset), names[i], (255, 0, 0), font=font)
+            if printFilename:
+                draw = ImageDraw.Draw(combined)
+                font = ImageFont.truetype("fonts/sans-serif.ttf", 28)
+                draw.text((10, offset), names[i], (255, 0, 0), font=font)
             offset += images[i].size[1] + padding
 
         combined.save(path)
@@ -150,16 +169,18 @@ class ImagesProcessor:
         baseImagesFolderPath: str,
         transformedFoldersPaths: list[str],
         outputFolderPath: str,
+        printFilename=True,
+        color=(0, 0, 0),
     ):
         ImagesProcessor._createFolder(dir=outputFolderPath)
 
-        baseImagesPaths = ImagesProcessor._getInputPathsFromFolder(
-            baseImagesFolderPath,
+        baseImagesPaths = ImagesProcessor.getInputPathsFromFolder(
+            folderPath=baseImagesFolderPath,
         )
         transformedImagesPaths = []
 
         for transformedFolder in transformedFoldersPaths:
-            images = ImagesProcessor._getInputPathsFromFolder(transformedFolder)
+            images = ImagesProcessor.getInputPathsFromFolder(transformedFolder)
             transformedImagesPaths.extend(images)
 
         for baseImagePath in baseImagesPaths:
@@ -174,7 +195,11 @@ class ImagesProcessor:
                     names.append(transformedName)
 
             ImagesProcessor.__saveCombinedImage(
-                images, names, f"{outputFolderPath}/{baseName}"
+                images,
+                names,
+                f"{outputFolderPath}/{baseName}",
+                color,
+                printFilename,
             )
 
     @staticmethod
@@ -191,12 +216,14 @@ class ImagesProcessor:
         content = str()
         outputFilePath = f"{outputPath}/{outputFilename}"
 
-        with open(outputFilePath, "r") as file:
+        with open(outputFilePath, "r", encoding="utf8") as file:
             content = file.read().split(divider)[0]
 
-        with open(outputFilePath, "w") as file:
-            images = ImagesProcessor._getInputPathsFromFolder(
-                inputFolderPath, supportImageTypes, False
+        with open(outputFilePath, "w", encoding="utf8") as file:
+            images = ImagesProcessor.getInputPathsFromFolder(
+                folderPath=inputFolderPath,
+                supportImageTypes=supportImageTypes,
+                includeFolderPath=False,
             )
 
             lines = [content, divider]
@@ -214,12 +241,12 @@ class ImagesProcessor:
     ):
         ImagesProcessor._createFolder(dir=outputFolderPath)
 
-        baseImagesPaths = ImagesProcessor._getInputPathsFromFolder(
+        baseImagesPaths = ImagesProcessor.getInputPathsFromFolder(
             baseImagesFolderPath,
         )
         transformedImagesPaths = []
 
-        images = ImagesProcessor._getInputPathsFromFolder(toXorFolderPath)
+        images = ImagesProcessor.getInputPathsFromFolder(toXorFolderPath)
         transformedImagesPaths.extend(images)
 
         for baseImagePath in baseImagesPaths:
