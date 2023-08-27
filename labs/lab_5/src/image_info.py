@@ -130,14 +130,14 @@ class ImageInfo:
 
         name, extension = os.path.basename(self.__inputPath).split(".")
 
-        plot.hist(horizontal, bins=width - 1)
+        plot.hist(horizontal, bins=len(set(horizontal)))
         plot.ylabel("Count")
         plot.xlabel("Line Number")
         plot.savefig(f"{path}/{name}_vertical.{extension}")
 
         plot.clf()
 
-        plot.hist(vertical, bins=height - 1, orientation="horizontal")
+        plot.hist(vertical, bins=len(set(vertical)), orientation="horizontal")
         plot.ylabel("Line Number")
         plot.xlabel("Count")
         plot.savefig(f"{path}/{name}_horizontal.{extension}")
