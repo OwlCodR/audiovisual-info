@@ -9,6 +9,7 @@ from lab_3.src.transformers import MorphologicalOpeningTransformer
 from lab_4.src.transformers import OutlineRobertsTransformer
 from lab_5.src.image_info import ImageInfo
 from lab_5.src.letters_generator import LettersImageGenerator
+from lab_6.src.segmentator import Segmentator
 
 
 def lab1():
@@ -210,7 +211,7 @@ def lab5():
         letters=letters,
     )
 
-    # generator.generate()
+    generator.generate()
 
     lettersPaths = ImagesProcessor.getInputPathsFromFolder(INPUT_PATH)
     for i in range(len(lettersPaths)):
@@ -242,13 +243,51 @@ def lab5():
     )
 
 
+def lab6():
+    INPUT_PATH = "./labs/lab_6/input"
+    OUTPUT_LETTERS_PATH = "./labs/lab_6/output/letters"
+    SEGMENTED_LETTERS_PATH = "./labs/lab_6/output/letters/vertical"
+    OUTPUT_PROFILES_PATH = "./labs/lab_6/output/profiles"
+
+    segmentator = Segmentator(
+        inputFolderPath=INPUT_PATH, 
+        outputLettersFolderPath=OUTPUT_LETTERS_PATH, 
+        outputProfilesFolderPath=OUTPUT_PROFILES_PATH,
+    )
+
+    segmentator.segment(axis="vertical")
+
+    segmentator = Segmentator(
+        inputFolderPath=SEGMENTED_LETTERS_PATH, 
+        outputLettersFolderPath=OUTPUT_LETTERS_PATH, 
+        outputProfilesFolderPath=OUTPUT_PROFILES_PATH,
+    )
+    segmentator.segment(axis="horizontal")
+    
+    ImagesProcessor.combine(
+        baseImagesFolderPath="./labs/lab_6/output/letters/vertical",
+        transformedFoldersPaths=[
+            "./labs/lab_6/output/letters/horizontal",
+        ],
+        outputFolderPath="./labs/lab_6/output/combined",
+        color=(0, 255, 0),
+        printFilename=False,
+    )
+
+    ImagesProcessor.addImagesToReadme(
+        inputFolderPath="./labs/lab_6/output/combined",
+        outputPath="./labs/lab_6",
+        relativePathFromOutputToInput="./output/combined",
+    )
+
+
 def main():
     # lab1()
     # lab2()
     # lab3()
     # lab4()
-    lab5()
-
+    # lab5()
+    lab6()
 
 if __name__ == "__main__":
     main()

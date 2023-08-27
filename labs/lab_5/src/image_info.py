@@ -15,6 +15,7 @@ class ImageInfo:
     ) -> None:
         img = Image.open(inputPath)
         print(f"\nImage '{inputPath}', {img.size}")
+        self.image = img
         self.__pixels = numpy.array(img)
         self.__inputPath = inputPath
 
@@ -116,7 +117,7 @@ class ImageInfo:
 
         return round(x / n, 2), round(y / n, 2)
 
-    def saveProfileImages(self, path: str):
+    def getProfiles(self, reverseY=True):
         height, width = self.__pixels.shape
 
         horizontal = []
@@ -125,8 +126,16 @@ class ImageInfo:
         for y in range(height):
             for x in range(width):
                 if self.__pixels[y][x] == 0:
+                    dy = height - y
+                    if not reverseY:
+                        dy = y
                     horizontal.append(x)
-                    vertical.append(height - y)  # Reverse image
+                    vertical.append(dy)
+        
+        return horizontal, vertical
+
+    def saveProfileImages(self, path: str):
+        horizontal, vertical = self.getProfiles()
 
         name, extension = os.path.basename(self.__inputPath).split(".")
 

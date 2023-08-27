@@ -17,6 +17,44 @@ class LettersImageGenerator:
         self.__letters = letters
         self.__fontSize = fontSize
         self.__imgSize = imgSize
+    
+    def crop(self, img: Image, makeSizeEven=True):
+        pixels = numpy.array(img)
+        height, width = pixels.shape
+
+        top = height
+        left = width
+        right = 0
+        bottom = 0
+
+        for k in range(height):
+            for n in range(width):
+                if pixels[k][n] == 0:
+                    if k < top:
+                        top = k
+                    if n < left:
+                        left = n
+                    if k > bottom:
+                        bottom = k
+                    if n > right:
+                        right = n
+
+        box = (left, top, right, bottom)
+        img = img.crop(box)
+
+        if makeSizeEven:
+            width, height = img.size
+
+            if height % 2 != 0:
+                height += 1
+
+            if width % 2 != 0:
+                width += 1
+
+            resized = Image.new("1", (width, height), (1))
+            resized.paste(img, (0, 0))
+            img = resized
+        return img
 
     def generate(self, crop=True):
         for i in range(len(self.__letters)):
@@ -40,39 +78,6 @@ class LettersImageGenerator:
             )
 
             if crop:
-                pixels = numpy.array(img)
-                height, width = pixels.shape
-
-                top = height
-                left = width
-                right = 0
-                bottom = 0
-
-                for k in range(height):
-                    for n in range(width):
-                        if pixels[k][n] == 0:
-                            if k < top:
-                                top = k
-                            if n < left:
-                                left = n
-                            if k > bottom:
-                                bottom = k
-                            if n > right:
-                                right = n
-
-                box = (left, top, right, bottom)
-                img = img.crop(box)
-
-                width, height = img.size
-
-                if height % 2 != 0:
-                    height += 1
-
-                if width % 2 != 0:
-                    width += 1
-
-                resized = Image.new("1", (width, height), (1))
-                resized.paste(img, (0, 0))
-                img = resized
+                img = self.crop(img)
 
             img.save(f"{self.__outputPath}/{str(i + 1).zfill(2)}.png")

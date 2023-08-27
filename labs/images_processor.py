@@ -127,7 +127,7 @@ class ImagesProcessor:
         padding = 10
         combined = Image.new(
             "RGB",
-            (totalWidth, maxHeight + padding * len(images)),
+            (totalWidth, maxHeight + padding * (len(images)-1)),
             color=color,
         )
 
