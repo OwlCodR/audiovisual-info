@@ -1,6 +1,6 @@
 from functools import cache
 import math
-import csv 
+import csv
 
 from PIL import Image
 from images_processor import ImagesProcessor
@@ -36,19 +36,18 @@ class ImageClassifier:
             if limit != None:
                 letterDistances = letterDistances[:limit]
 
-
             for letterDistance in letterDistances:
                 print(letterDistance)
-    
+
     def exportResultsToCsv(self, outputCsvFilePath: str):
         paths, lettersDistances = self.classificate()
 
         lettersDistances = [
             [
-                (letterDistance[0], str(letterDistance[1])) 
+                (letterDistance[0], str(letterDistance[1]))
                 for letterDistance in letterDistances
-            ] 
-            for letterDistances in lettersDistances 
+            ]
+            for letterDistances in lettersDistances
         ]
 
         with open(outputCsvFilePath, "w+", encoding="utf-8") as file:
@@ -58,11 +57,14 @@ class ImageClassifier:
     @cache
     def classificate(self):
         normalizedColumns = [4, 5, 6, 7, 11, 12, 15, 16]
-        paths = ImagesProcessor.getInputPathsFromFolder(self.__inputImagesFolderPath)
+
+        paths = ImagesProcessor.getInputPathsFromFolder(
+            self.__inputImagesFolderPath,
+        )
 
         lettersDistances = []
 
-        maxDistance = None        
+        maxDistance = None
 
         for path in paths:
             info = ImageInfo(path)
@@ -84,13 +86,15 @@ class ImageClassifier:
                 if maxDistance == None or distance > maxDistance:
                     maxDistance = distance
 
-                letterDistances.append((letter, round(1 - distance / maxDistance, 3)))
+                letterDistances.append(
+                    (letter, round(1 - distance / maxDistance, 3)))
 
             lettersDistances.append(letterDistances)
-                
+
         sortedNormalizedLettersDistances = [
-            sorted(letterDistances, key=lambda distances: distances[1], reverse=True)
-            for letterDistances in lettersDistances 
+            sorted(letterDistances,
+                   key=lambda distances: distances[1], reverse=True)
+            for letterDistances in lettersDistances
         ]
 
         return paths, sortedNormalizedLettersDistances
