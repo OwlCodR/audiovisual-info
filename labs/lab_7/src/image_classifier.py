@@ -87,13 +87,16 @@ class ImageClassifier:
                     maxDistance = distance
 
                 letterDistances.append(
-                    (letter, round(1 - distance / maxDistance, 3)))
+                    (letter, round(1 - distance / maxDistance, 3))
+                )
 
             lettersDistances.append(letterDistances)
 
         sortedNormalizedLettersDistances = [
-            sorted(letterDistances,
-                   key=lambda distances: distances[1], reverse=True)
+            sorted(
+                letterDistances,
+                key=lambda distances: distances[1], reverse=True,
+            )
             for letterDistances in lettersDistances
         ]
 

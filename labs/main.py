@@ -205,6 +205,7 @@ def lab5():
     letters2 = ["כ", "ך", "מ", "ם", "נ", "ן", "ס", "ע"]
     letters3 = ["פ", "ף", "צ", "ץ", "ק", "ר", "ש", "ת", "ל"]
     letters = letters1 + letters2 + letters3
+    
 
     generator = LettersImageGenerator(
         outputPath=INPUT_PATH,
@@ -233,7 +234,7 @@ def lab5():
             FIGURES_PATH,
         ],
         outputFolderPath=COMBINED_PATH,
-        color=(255, 255, 255),
+        color=(0, 255, 0),
         printFilename=False,
     )
 
@@ -266,7 +267,7 @@ def lab6():
     segmentator.segment(axis="horizontal")
     
     ImagesProcessor.combine(
-        baseImagesFolderPath="./labs/lab_6/output/letters/vertical",
+        baseImagesFolderPath=SEGMENTED_LETTERS_PATH,
         transformedFoldersPaths=[
             "./labs/lab_6/output/letters/horizontal",
         ],
@@ -287,7 +288,7 @@ def lab7():
         dataCsvPath="./labs/lab_5/output/data.csv", 
         inputImagesFolderPath="./labs/lab_6/output/letters/horizontal"
     )
-    classifier.printResults(limit=5)
+    classifier.printResults(limit=2)
     classifier.exportResultsToCsv(outputCsvFilePath="./labs/lab_7/output/classified_data.csv")
 
 def main():

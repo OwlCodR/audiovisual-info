@@ -182,7 +182,7 @@ class ImageInfo:
     def exportCsv(self, letter: str, path: str):
         with open(path, "a+", encoding="utf8") as file:
             writer = csv.writer(file, delimiter=",")
-            writer.writerow([letter].extend(self.getInfo()))
+            writer.writerow([letter] + self.getInfo())
 
     def getInfo(self):
         w1, w2, w3, w4 = self.__getWeights()
