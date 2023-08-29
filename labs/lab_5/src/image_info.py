@@ -14,7 +14,7 @@ class ImageInfo:
         inputPath: str,
     ) -> None:
         img = Image.open(inputPath)
-        print(f"\nImage '{inputPath}', {img.size}")
+        print(f"\nGetting info of '{inputPath}', {img.size}")
         self.image = img
         self.__pixels = numpy.array(img)
         self.__inputPath = inputPath
@@ -181,38 +181,19 @@ class ImageInfo:
 
     def exportCsv(self, letter: str, path: str):
         with open(path, "a+", encoding="utf8") as file:
-            w1, w2, w3, w4 = self.__getWeights()
-            nw1, nw2, nw3, nw4 = self.__getNormWeights()
-            totalNormWeight = self.__getNormWeight()
-            xc, yc = self.__getWeightCenter()
-            nxc, nyc = self.__getNormWeightCenter()
-            xa, ya = self.__getAxisMomentum()
-            nxa, nya = self.__getNormAxisMomentum()
-
             writer = csv.writer(file, delimiter=",")
+            writer.writerow([letter].extend(self.getInfo()))
 
-            writer.writerow(
-                [
-                    letter,
-                    w1,
-                    w2,
-                    w3,
-                    w4,
-                    nw1,
-                    nw2,
-                    nw3,
-                    nw4,
-                    totalNormWeight,
-                    xc,
-                    yc,
-                    nxc,
-                    nyc,
-                    xa,
-                    ya,
-                    nxa,
-                    nya,
-                ]
-            )
+    def getInfo(self):
+        w1, w2, w3, w4 = self.__getWeights()
+        nw1, nw2, nw3, nw4 = self.__getNormWeights()
+        totalNormWeight = self.__getNormWeight()
+        xc, yc = self.__getWeightCenter()
+        nxc, nyc = self.__getNormWeightCenter()
+        xa, ya = self.__getAxisMomentum()
+        nxa, nya = self.__getNormAxisMomentum()
+        
+        return [ w1, w2, w3, w4, nw1, nw2, nw3, nw4, totalNormWeight, xc, yc, nxc, nyc, xa, ya, nxa, nya ]
 
     def printInfo(self):
         print("Вес каждой четверти:", self.__getWeights())

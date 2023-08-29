@@ -10,6 +10,7 @@ from lab_4.src.transformers import OutlineRobertsTransformer
 from lab_5.src.image_info import ImageInfo
 from lab_5.src.letters_generator import LettersImageGenerator
 from lab_6.src.segmentator import Segmentator
+from lab_7.src.image_classifier import ImageClassifier
 
 
 def lab1():
@@ -281,13 +282,22 @@ def lab6():
     )
 
 
+def lab7():
+    classifier = ImageClassifier(
+        dataCsvPath="./labs/lab_5/output/data.csv", 
+        inputImagesFolderPath="./labs/lab_6/output/letters/horizontal"
+    )
+    classifier.printResults(limit=5)
+    classifier.exportResultsToCsv(outputCsvFilePath="./labs/lab_7/output/classified_data.csv")
+
 def main():
     # lab1()
     # lab2()
     # lab3()
     # lab4()
     # lab5()
-    lab6()
+    # lab6()
+    lab7()
 
 if __name__ == "__main__":
     main()
