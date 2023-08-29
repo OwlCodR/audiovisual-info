@@ -11,6 +11,7 @@ from lab_5.src.image_info import ImageInfo
 from lab_5.src.letters_generator import LettersImageGenerator
 from lab_6.src.segmentator import Segmentator
 from lab_7.src.image_classifier import ImageClassifier
+from lab_8.src.transformers import HaralicMatrixTransformer
 
 
 def lab1():
@@ -291,6 +292,32 @@ def lab7():
     classifier.printResults(limit=2)
     classifier.exportResultsToCsv(outputCsvFilePath="./labs/lab_7/output/classified_data.csv")
 
+def lab8():
+    grayscaleProcessor = ImagesProcessor.fromImagesFolder(
+        inputFolderPath="./labs/lab_8/input",
+        outputFolderPath="./labs/lab_8/output/grayscale",
+        supportImageTypes=["png"],
+    )
+
+    grayscaleTransformers = [
+        GrayscaleTransformer(grayFromRGB=GrayscaleTransformer.avgGrayColor),
+    ]
+    
+    # grayscaleProcessor.transformByAll(grayscaleTransformers)
+
+    haralicProcessor = ImagesProcessor.fromImagesFolder(
+        inputFolderPath="./labs/lab_8/output/grayscale",
+        outputFolderPath="./labs/lab_8/output/haralic",
+        supportImageTypes=["png"],
+    )
+
+    haralicTransformers = [
+        HaralicMatrixTransformer(d=1, phi=[45, 135, 225, 315]),
+    ]
+
+    haralicProcessor.transformByAll(haralicTransformers)
+
+
 def main():
     # lab1()
     # lab2()
@@ -298,7 +325,8 @@ def main():
     # lab4()
     # lab5()
     # lab6()
-    lab7()
+    # lab7()
+    lab8()
 
 if __name__ == "__main__":
     main()
