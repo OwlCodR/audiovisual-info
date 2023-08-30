@@ -11,7 +11,7 @@ from lab_5.src.image_info import ImageInfo
 from lab_5.src.letters_generator import LettersImageGenerator
 from lab_6.src.segmentator import Segmentator
 from lab_7.src.image_classifier import ImageClassifier
-from lab_8.src.transformers import HaralicMatrixTransformer
+from lab_8.src.transformers import HaralicMatrixTransformer, LinearLightnessTransformer
 
 
 def lab1():
@@ -293,6 +293,8 @@ def lab7():
     classifier.exportResultsToCsv(outputCsvFilePath="./labs/lab_7/output/classified_data.csv")
 
 def lab8():
+    ### Making input grayscale
+    
     grayscaleProcessor = ImagesProcessor.fromImagesFolder(
         inputFolderPath="./labs/lab_8/input",
         outputFolderPath="./labs/lab_8/output/grayscale",
@@ -305,6 +307,8 @@ def lab8():
     
     # grayscaleProcessor.transformByAll(grayscaleTransformers)
 
+    ### Making haralic matrix of input images
+
     haralicProcessor = ImagesProcessor.fromImagesFolder(
         inputFolderPath="./labs/lab_8/output/grayscale",
         outputFolderPath="./labs/lab_8/output/haralic",
@@ -315,7 +319,61 @@ def lab8():
         HaralicMatrixTransformer(d=1, phi=[45, 135, 225, 315]),
     ]
 
-    haralicProcessor.transformByAll(haralicTransformers)
+    # haralicProcessor.transformByAll(haralicTransformers)
+
+    ### Transforming lightness
+
+    linearLightnessProcessor = ImagesProcessor.fromImagesFolder(
+        inputFolderPath="./labs/lab_8/input",
+        outputFolderPath="./labs/lab_8/output/lightness",
+        supportImageTypes=["png"],
+    )
+
+    linearLightnessTransformers = [
+        LinearLightnessTransformer(gmin=50, gmax=255),
+    ]
+
+    # linearLightnessProcessor.transformByAll(linearLightnessTransformers)
+
+    ### Grayscaling transformed lightness
+
+    grayscaleProcessor = ImagesProcessor.fromImagesFolder(
+        inputFolderPath="./labs/lab_8/output/lightness",
+        outputFolderPath="./labs/lab_8/output/grayscale",
+        supportImageTypes=["png"],
+    )
+
+    # grayscaleProcessor.transformByAll(grayscaleTransformers)
+
+    ### Making haralic matrix of transformed images
+
+    haralicProcessor = ImagesProcessor.fromImagesFolder(
+        inputFolderPath="./labs/lab_8/output/grayscale",
+        outputFolderPath="./labs/lab_8/output/haralic",
+        supportImageTypes=["png"],
+    )
+
+    # haralicProcessor.transformByAll(haralicTransformers)
+
+    ### Combining
+
+    ImagesProcessor.combine(
+        baseImagesFolderPath="./labs/lab_8/input",
+        transformedFoldersPaths=[
+            "./labs/lab_8/output/lightness",
+            "./labs/lab_8/output/grayscale",
+            "./labs/lab_8/output/haralic",
+        ],
+        outputFolderPath="./labs/lab_8/output/combined",
+        color=(0, 0, 0),
+    )
+
+    ImagesProcessor.addImagesToReadme(
+        inputFolderPath="./labs/lab_8/output/combined",
+        outputPath="./labs/lab_8",
+        relativePathFromOutputToInput="./output/combined",
+    )
+
 
 
 def main():

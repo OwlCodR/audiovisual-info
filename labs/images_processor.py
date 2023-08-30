@@ -76,11 +76,11 @@ class ImagesProcessor:
         if not os.path.exists(dir):
             Path(dir).mkdir()
 
-    def transformByAll(self, transformers: list[ImageTransformerInterface]):
+    def transformByAll(self, transformers: list[ImageTransformerInterface], mode='RGB'):
         for transformer in transformers:
-            self.transform(transformer)
+            self.transform(transformer, mode)
 
-    def transform(self, transformer: ImageTransformerInterface):
+    def transform(self, transformer: ImageTransformerInterface, mode='RGB'):
         if len(self.__inputPaths) == 0:
             raise Exception("No files to transform")
 

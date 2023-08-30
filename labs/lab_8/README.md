@@ -17,6 +17,31 @@
     - гистограммы исходных и контрастированных изображений;
     - матрицы Харалика исходных и контрастированных изображений.
 
+```log
+Transforming image L, './labs/lab_8/output/grayscale/pattern_Avg.png'
+Input image shape: (500, 1000)
+Processing 500000 pixels...
+--> CORR = 0.3199586995752668
+Output image shape: (256, 256)
+Finished in 48s
+(256, 256) ./labs/lab_8/output/haralic/pattern_Avg_haralic.png
+
+Transforming image L, './labs/lab_8/output/grayscale/peafowl_Avg.png'
+Input image shape: (629, 1000)
+Processing 629000 pixels...
+--> CORR = -0.697955996884663
+Output image shape: (256, 256)
+Finished in 58s
+(256, 256) ./labs/lab_8/output/haralic/peafowl_Avg_haralic.png
+
+Transforming image L, './labs/lab_8/output/grayscale/wall_Avg.png'
+Input image shape: (633, 1000)
+Processing 633000 pixels...
+--> CORR = -0.12825316323506403
+Output image shape: (256, 256)
+Finished in 59s
+(256, 256) ./labs/lab_8/output/haralic/wall_Avg_haralic.png
+```
 ### Варианты:
 
 Вариант | Параметры матрицы Харалика | Расчёт признаков | Метод преобразования яркости |
@@ -37,3 +62,11 @@
 14 | d=2, phi = {45, 135, 225, 315} | AV, D  | Логарифмическое
 15 | d=2, phi = {45, 135, 225, 315} | AV, D  | Линейное
 16 | d=2, phi = {45, 135, 225, 315} | AV, D  | Выравнивание гистограммы
+
+
+
+### **Examples**
+
+![](./output/combined/pattern.png)
+![](./output/combined/peafowl.png)
+![](./output/combined/wall.png)
