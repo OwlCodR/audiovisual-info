@@ -117,6 +117,29 @@ class ImageInfo:
 
         return round(x / n, 2), round(y / n, 2)
 
+    def getLightness(self):
+        height, width = self.__pixels.shape
+
+        lightness = []
+
+        for y in range(height):
+            for x in range(width):
+                lightness.append(self.__pixels[y][x])
+        
+        return lightness
+
+    def saveLightnessImages(self, path: str):
+        bins = self.getLightness()
+
+        name, extension = os.path.basename(self.__inputPath).split(".")
+
+        plot.hist(bins, bins=len(set(bins)))
+        plot.ylabel("Count of pixels")
+        plot.xlabel("Lightness")
+        plot.savefig(f"{path}/{name}_hist.{extension}")
+
+        plot.close()
+
     def getProfiles(self, reverseY=True):
         height, width = self.__pixels.shape
 

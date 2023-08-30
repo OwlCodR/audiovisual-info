@@ -354,6 +354,13 @@ def lab8():
     )
 
     # haralicProcessor.transformByAll(haralicTransformers)
+    
+    ### Making histograms
+
+    inputPaths = ImagesProcessor.getInputPathsFromFolder("./labs/lab_8/output/grayscale")
+    for path in inputPaths:
+        info = ImageInfo(inputPath=path)
+        info.saveLightnessImages("./labs/lab_8/output/hists")
 
     ### Combining
 
@@ -363,6 +370,7 @@ def lab8():
             "./labs/lab_8/output/lightness",
             "./labs/lab_8/output/grayscale",
             "./labs/lab_8/output/haralic",
+            "./labs/lab_8/output/hists",
         ],
         outputFolderPath="./labs/lab_8/output/combined",
         color=(0, 0, 0),
