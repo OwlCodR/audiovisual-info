@@ -1,3 +1,5 @@
+from scipy import signal
+
 from images_processor import ImagesProcessor
 from lab_1.src.transformers import *
 from lab_2.src.transformers import (
@@ -12,6 +14,7 @@ from lab_5.src.letters_generator import LettersImageGenerator
 from lab_6.src.segmentator import Segmentator
 from lab_7.src.image_classifier import ImageClassifier
 from lab_8.src.transformers import HaralicMatrixTransformer, LinearLightnessTransformer
+from lab_9.src.audio_processor import AudioProcessor
 
 
 def lab1():
@@ -53,7 +56,8 @@ def lab2():
     )
 
     grayscaleTransformers = [
-        GrayscaleTransformer(grayFromRGB=GrayscaleTransformer.photoshopGrayColor),
+        GrayscaleTransformer(
+            grayFromRGB=GrayscaleTransformer.photoshopGrayColor),
         GrayscaleTransformer(grayFromRGB=GrayscaleTransformer.avgGrayColor),
     ]
 
@@ -206,7 +210,6 @@ def lab5():
     letters2 = ["כ", "ך", "מ", "ם", "נ", "ן", "ס", "ע"]
     letters3 = ["פ", "ף", "צ", "ץ", "ק", "ר", "ש", "ת", "ל"]
     letters = letters1 + letters2 + letters3
-    
 
     generator = LettersImageGenerator(
         outputPath=INPUT_PATH,
@@ -253,20 +256,20 @@ def lab6():
     OUTPUT_PROFILES_PATH = "./labs/lab_6/output/profiles"
 
     segmentator = Segmentator(
-        inputFolderPath=INPUT_PATH, 
-        outputLettersFolderPath=OUTPUT_LETTERS_PATH, 
+        inputFolderPath=INPUT_PATH,
+        outputLettersFolderPath=OUTPUT_LETTERS_PATH,
         outputProfilesFolderPath=OUTPUT_PROFILES_PATH,
     )
 
     segmentator.segment(axis="vertical")
 
     segmentator = Segmentator(
-        inputFolderPath=SEGMENTED_LETTERS_PATH, 
-        outputLettersFolderPath=OUTPUT_LETTERS_PATH, 
+        inputFolderPath=SEGMENTED_LETTERS_PATH,
+        outputLettersFolderPath=OUTPUT_LETTERS_PATH,
         outputProfilesFolderPath=OUTPUT_PROFILES_PATH,
     )
     segmentator.segment(axis="horizontal")
-    
+
     ImagesProcessor.combine(
         baseImagesFolderPath=SEGMENTED_LETTERS_PATH,
         transformedFoldersPaths=[
@@ -286,15 +289,17 @@ def lab6():
 
 def lab7():
     classifier = ImageClassifier(
-        dataCsvPath="./labs/lab_5/output/data.csv", 
+        dataCsvPath="./labs/lab_5/output/data.csv",
         inputImagesFolderPath="./labs/lab_6/output/letters/horizontal"
     )
     classifier.printResults(limit=2)
-    classifier.exportResultsToCsv(outputCsvFilePath="./labs/lab_7/output/classified_data.csv")
+    classifier.exportResultsToCsv(
+        outputCsvFilePath="./labs/lab_7/output/classified_data.csv")
+
 
 def lab8():
-    ### Making input grayscale
-    
+    # Making input grayscale
+
     grayscaleProcessor = ImagesProcessor.fromImagesFolder(
         inputFolderPath="./labs/lab_8/input",
         outputFolderPath="./labs/lab_8/output/grayscale",
@@ -304,10 +309,10 @@ def lab8():
     grayscaleTransformers = [
         GrayscaleTransformer(grayFromRGB=GrayscaleTransformer.avgGrayColor),
     ]
-    
+
     # grayscaleProcessor.transformByAll(grayscaleTransformers)
 
-    ### Making haralic matrix of input images
+    # Making haralic matrix of input images
 
     haralicProcessor = ImagesProcessor.fromImagesFolder(
         inputFolderPath="./labs/lab_8/output/grayscale",
@@ -321,7 +326,7 @@ def lab8():
 
     # haralicProcessor.transformByAll(haralicTransformers)
 
-    ### Transforming lightness
+    # Transforming lightness
 
     linearLightnessProcessor = ImagesProcessor.fromImagesFolder(
         inputFolderPath="./labs/lab_8/input",
@@ -335,7 +340,7 @@ def lab8():
 
     # linearLightnessProcessor.transformByAll(linearLightnessTransformers)
 
-    ### Grayscaling transformed lightness
+    # Grayscaling transformed lightness
 
     grayscaleProcessor = ImagesProcessor.fromImagesFolder(
         inputFolderPath="./labs/lab_8/output/lightness",
@@ -345,7 +350,7 @@ def lab8():
 
     # grayscaleProcessor.transformByAll(grayscaleTransformers)
 
-    ### Making haralic matrix of transformed images
+    # Making haralic matrix of transformed images
 
     haralicProcessor = ImagesProcessor.fromImagesFolder(
         inputFolderPath="./labs/lab_8/output/grayscale",
@@ -354,15 +359,16 @@ def lab8():
     )
 
     # haralicProcessor.transformByAll(haralicTransformers)
-    
-    ### Making histograms
 
-    inputPaths = ImagesProcessor.getInputPathsFromFolder("./labs/lab_8/output/grayscale")
+    # Making histograms
+
+    inputPaths = ImagesProcessor.getInputPathsFromFolder(
+        "./labs/lab_8/output/grayscale")
     for path in inputPaths:
         info = ImageInfo(inputPath=path)
         info.saveLightnessImages("./labs/lab_8/output/hists")
 
-    ### Combining
+    # Combining
 
     ImagesProcessor.combine(
         baseImagesFolderPath="./labs/lab_8/input",
@@ -383,6 +389,28 @@ def lab8():
     )
 
 
+def lab9():
+    processor = AudioProcessor(
+        inputPath="./labs/lab_9/input/witcher.wav",
+        outputPath="./labs/lab_9/output"
+    )
+
+    # processor.wave()
+    # processor.stft(
+    #     windows=[
+    #         signal.windows.hann,
+    #         signal.windows.cosine,
+    #     ],
+    #     seconds=0.050
+    # )
+    processor.noiseFilter(seconds=0.050)
+
+    ImagesProcessor.addImagesToReadme(
+        inputFolderPath="./labs/lab_9/output",
+        outputPath="./labs/lab_9",
+        relativePathFromOutputToInput="./output",
+    )
+
 
 def main():
     # lab1()
@@ -392,7 +420,9 @@ def main():
     # lab5()
     # lab6()
     # lab7()
-    lab8()
+    # lab8()
+    lab9()
+
 
 if __name__ == "__main__":
     main()
