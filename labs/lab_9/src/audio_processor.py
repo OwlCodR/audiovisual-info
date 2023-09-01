@@ -60,7 +60,7 @@ class AudioProcessor():
         )  
 
         print(n_fft)
-        times = librosa.times_like(pitches, hop_length=960)
+        times = librosa.times_like(pitches, hop_length=950)
 
         ax.set_title(title)
         fig.colorbar(img, ax=ax, format="%+2.0f dB")
