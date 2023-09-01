@@ -2,6 +2,7 @@ from scipy import signal
 
 from images_processor import ImagesProcessor
 from lab_1.src.transformers import *
+from lab_10.src.voice_analyzer import VoiceAnalyzer
 from lab_2.src.transformers import (
     GlobalBinzrizationTransformer,
     GrayscaleTransformer,
@@ -391,23 +392,63 @@ def lab8():
 
 def lab9():
     processor = AudioProcessor(
-        inputPath="./labs/lab_9/input/witcher.wav",
+        inputFolderPath="./labs/lab_9/input",
         outputPath="./labs/lab_9/output"
     )
 
-    # processor.wave()
-    # processor.stft(
-    #     windows=[
-    #         signal.windows.hann,
-    #         signal.windows.cosine,
-    #     ],
-    #     seconds=0.050
-    # )
+    processor.wave()
+    processor.stft(
+        windows=[
+            signal.windows.hann,
+            signal.windows.cosine,
+        ],
+        seconds=0.050
+    )
+    processor.stft(
+        windows=[
+            signal.windows.hann,
+            signal.windows.cosine,
+        ],
+        seconds=0.050,
+        yAxisMode='linear',
+    )
     processor.noiseFilter(seconds=0.050)
 
     ImagesProcessor.addImagesToReadme(
         inputFolderPath="./labs/lab_9/output",
         outputPath="./labs/lab_9",
+        relativePathFromOutputToInput="./output",
+    )
+
+
+def lab10():
+    processor = AudioProcessor(
+        inputFolderPath="./labs/lab_10/input",
+        outputPath="./labs/lab_10/output"
+    )
+
+    processor.wave()
+    processor.stft(
+        windows=[
+            signal.windows.hann,
+        ],
+        seconds=0.050,
+    )
+
+    processor.stft(
+        windows=[
+            signal.windows.hann,
+        ],
+        seconds=0.050,
+        yAxisMode='linear',
+    )
+
+    analyzer = VoiceAnalyzer(inputSamplesPaths=processor.samplesPaths)
+    analyzer.getFormants()
+
+    ImagesProcessor.addImagesToReadme(
+        inputFolderPath="./labs/lab_10/output",
+        outputPath="./labs/lab_10",
         relativePathFromOutputToInput="./output",
     )
 
@@ -421,7 +462,8 @@ def main():
     # lab6()
     # lab7()
     # lab8()
-    lab9()
+    # lab9()
+    lab10()
 
 
 if __name__ == "__main__":

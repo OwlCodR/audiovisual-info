@@ -19,7 +19,9 @@ pylab, pywt, pyWavelets, librosa и другие.
 
 ### **Examples**
 
-![](./output/cosine_50.png)
 ![](./output/filtered_50.png)
-![](./output/hann_50.png)
-![](./output/waveplot.png)
+![](./output/witcher_cosine_linear_50.png)
+![](./output/witcher_cosine_log_50.png)
+![](./output/witcher_hann_linear_50.png)
+![](./output/witcher_hann_log_50.png)
+![](./output/witcher_waveplot.png)
